@@ -2,7 +2,7 @@
 
 An intelligent multi-model content pipeline system that analyzes incoming prompts and routes them to the most appropriate AI model based on complexity, cost, and task requirements. The system uses RAG (Retrieval-Augmented Generation) to make informed routing decisions based on model documentation and capabilities.
 
-## 🌟 Features
+## Features
 
 ### Core Capabilities
 - **Intelligent Routing**: Automatically selects the best model for each task based on complexity, cost, and performance requirements
@@ -20,7 +20,7 @@ An intelligent multi-model content pipeline system that analyzes incoming prompt
 - **RESTful API**: Complete FastAPI-based REST API with OpenAPI documentation
 - **Production Ready**: Structured logging, error handling, and observability features
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -40,7 +40,7 @@ An intelligent multi-model content pipeline system that analyzes incoming prompt
                        └──────────────────┘
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Clone and Setup
 
@@ -112,7 +112,7 @@ python main.py serve --workers 4
 
 The API will be available at `http://localhost:8000` with interactive docs at `http://localhost:8000/docs`.
 
-## 📊 Usage Examples
+## Usage Examples
 
 ### Simple Text Generation
 
@@ -148,7 +148,7 @@ curl -X POST "http://localhost:8000/analysis/analyze" \
   }'
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### Model Configuration
 
@@ -185,7 +185,7 @@ python main.py init-knowledge-base --force-reload
 python main.py test-model --provider openai --model-id gpt-3.5-turbo
 ```
 
-## 📈 Model Selection Logic
+## Model Selection Logic
 
 The system uses a sophisticated scoring algorithm that considers:
 
@@ -214,7 +214,7 @@ The system queries a vector database of model documentation to find relevant inf
 - Performance benchmarks
 - Cost-benefit analysis
 
-## 🎯 Routing Strategies
+## Routing Strategies
 
 - **RAG-Based**: Uses documentation similarity for model selection
 - **Cost-Optimized**: Prioritizes lowest-cost options that meet quality thresholds
@@ -222,7 +222,7 @@ The system queries a vector database of model documentation to find relevant inf
 - **Quality-Optimized**: Selects highest-quality models regardless of cost
 - **Hybrid** (default): Balances all factors using configurable weights
 
-## 📊 Monitoring and Metrics
+## Monitoring and Metrics
 
 ### Available Metrics
 - Request latency and throughput
@@ -246,7 +246,7 @@ Enable Prometheus metrics by setting `ENABLE_METRICS=true`. Metrics include:
 - `router_request_cost_usd` - Cost distribution by model
 - `router_routing_confidence` - Routing decision confidence scores
 
-## 🔄 Model Integrations
+## Model Integrations
 
 ### Supported Providers
 
@@ -279,7 +279,7 @@ class CustomModelIntegration(BaseModelInterface):
         pass
 ```
 
-## 🛡️ Production Deployment
+## Production Deployment
 
 ### Docker Deployment
 
@@ -309,25 +309,6 @@ Set these in production:
 
 Configure your load balancer to use `/health` for health checks.
 
-## 🔧 Development
-
-### Project Structure
-
-```
-multi-model-router/
-├── src/
-│   ├── models/          # Pydantic models and schemas
-│   ├── rag/             # RAG system components
-│   ├── routing/         # Prompt analysis and routing logic
-│   ├── integrations/    # Model API integrations
-│   ├── monitoring/      # Metrics and observability
-│   └── api/             # FastAPI endpoints
-├── data/
-│   ├── model_docs/      # Model documentation for RAG
-│   └── configs/         # Model configurations
-├── tests/
-└── main.py              # Application entry point
-```
 
 ### Running Tests
 
@@ -355,7 +336,7 @@ mypy src/
 flake8 src/ tests/
 ```
 
-## 📝 API Reference
+## API Reference
 
 ### Generate Text
 `POST /api/v1/generate`
@@ -397,7 +378,7 @@ Get routing decision without executing.
 
 Analyze prompt characteristics for task classification.
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
@@ -405,11 +386,11 @@ Analyze prompt characteristics for task classification.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - OpenAI for GPT models and APIs
 - Anthropic for Claude models
@@ -417,7 +398,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - ChromaDB for vector database capabilities
 - FastAPI for the excellent web framework
 
-## 📞 Support
+## Support
 
 For questions and support:
 - Create an issue on GitHub
@@ -426,4 +407,3 @@ For questions and support:
 
 ---
 
-**Built with ❤️ for intelligent AI model routing**
