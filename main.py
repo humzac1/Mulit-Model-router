@@ -104,15 +104,15 @@ def main(
     
     # Check for API keys (warn if missing)
     if not os.getenv("OPENAI_API_KEY"):
-        click.echo("⚠️  Warning: OPENAI_API_KEY not set - OpenAI models will not work")
+        click.echo("  Warning: OPENAI_API_KEY not set - OpenAI models will not work")
     
     if not os.getenv("ANTHROPIC_API_KEY"):
-        click.echo("⚠️  Warning: ANTHROPIC_API_KEY not set - Anthropic models will not work")
+        click.echo("  Warning: ANTHROPIC_API_KEY not set - Anthropic models will not work")
     
     # Check for local directories
     data_dir = Path("data")
     if not data_dir.exists():
-        click.echo("⚠️  Warning: data/ directory not found - creating it")
+        click.echo("  Warning: data/ directory not found - creating it")
         data_dir.mkdir(exist_ok=True)
         (data_dir / "model_docs").mkdir(exist_ok=True)
         (data_dir / "configs").mkdir(exist_ok=True)
@@ -121,9 +121,9 @@ def main(
     try:
         uvicorn.run(**config)
     except KeyboardInterrupt:
-        click.echo("\n👋 Shutting down gracefully...")
+        click.echo("\n Shutting down gracefully...")
     except Exception as e:
-        click.echo(f"❌ Server failed to start: {e}")
+        click.echo(f" Server failed to start: {e}")
         raise
 
 
@@ -154,17 +154,17 @@ def validate_config(config_file: str):
         for model_id, model_data in models.items():
             try:
                 ModelConfig(**model_data)
-                click.echo(f"✅ {model_id}: Valid")
+                click.echo(f" {model_id}: Valid")
                 valid_models += 1
             except Exception as e:
-                click.echo(f"❌ {model_id}: {e}")
+                click.echo(f" {model_id}: {e}")
         
         click.echo(f"\nValidation complete: {valid_models}/{len(models)} models valid")
         
     except FileNotFoundError:
-        click.echo(f"❌ Configuration file not found: {config_file}")
+        click.echo(f" Configuration file not found: {config_file}")
     except Exception as e:
-        click.echo(f"❌ Validation failed: {e}")
+        click.echo(f" Validation failed: {e}")
 
 
 @cli.command()
@@ -187,12 +187,12 @@ def init_knowledge_base(docs_dir: str, force_reload: bool):
         kb = ModelKnowledgeBase()
         await kb.initialize_from_documents(docs_dir, force_reload=force_reload)
         stats = kb.get_stats()
-        click.echo(f"✅ Knowledge base initialized with {stats['total_documents']} documents")
+        click.echo(f" Knowledge base initialized with {stats['total_documents']} documents")
     
     try:
         asyncio.run(_init())
     except Exception as e:
-        click.echo(f"❌ Failed to initialize knowledge base: {e}")
+        click.echo(f" Failed to initialize knowledge base: {e}")
 
 
 @cli.command()
@@ -227,12 +227,12 @@ def test_model(provider: str, model_id: str, api_key: str):
             )
             
             if result:
-                click.echo(f"✅ {provider}/{model_id}: Connection successful")
+                click.echo(f" {provider}/{model_id}: Connection successful")
             else:
-                click.echo(f"❌ {provider}/{model_id}: Connection failed")
+                click.echo(f" {provider}/{model_id}: Connection failed")
                 
         except Exception as e:
-            click.echo(f"❌ {provider}/{model_id}: {e}")
+            click.echo(f" {provider}/{model_id}: {e}")
     
     asyncio.run(_test())
 
