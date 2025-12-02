@@ -2,7 +2,7 @@
 
 from typing import Dict, List, Optional, Any
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 
@@ -100,11 +100,13 @@ class PromptAnalysis(BaseModel):
 
 class PromptResponse(BaseModel):
     """Response from the selected model."""
-    
+
+    model_config = ConfigDict(protected_namespaces=())
+
     request_id: str = Field(..., description="Unique request identifier")
     selected_model: str = Field(..., description="Model that was used")
     response_text: str = Field(..., description="Generated response")
-    
+
     # Performance metrics
     total_latency_ms: float = Field(..., description="Total response time")
     model_latency_ms: float = Field(..., description="Model inference time")

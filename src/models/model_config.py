@@ -2,7 +2,7 @@
 
 from typing import Dict, List, Optional, Any
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class ModelProvider(str, Enum):
@@ -24,7 +24,9 @@ class ModelType(str, Enum):
 
 class ModelCapabilities(BaseModel):
     """Detailed capabilities of a model."""
-    
+
+    model_config = ConfigDict(protected_namespaces=())
+
     # Core capabilities (0.0 to 1.0 scoring)
     reasoning_ability: float = Field(0.0, ge=0.0, le=1.0)
     creative_ability: float = Field(0.0, ge=0.0, le=1.0)
@@ -64,7 +66,9 @@ class ModelCapabilities(BaseModel):
 
 class ModelConstraints(BaseModel):
     """Performance and cost constraints for a model."""
-    
+
+    model_config = ConfigDict(protected_namespaces=())
+
     # Cost (per token in USD)
     input_cost_per_1k_tokens: float = Field(..., ge=0.0)
     output_cost_per_1k_tokens: float = Field(..., ge=0.0)
@@ -85,7 +89,7 @@ class ModelConstraints(BaseModel):
 
 class ModelConfig(BaseModel):
     """Complete configuration for a model."""
-    
+
     # Basic identification
     model_id: str = Field(..., description="Unique model identifier")
     name: str = Field(..., description="Human-readable model name")
@@ -126,9 +130,9 @@ class ModelConfig(BaseModel):
         description="Additional metadata"
     )
     
-    class Config:
-        """Pydantic config."""
-        json_schema_extra = {
+    model_config = ConfigDict(
+        protected_namespaces=(),
+        json_schema_extra={
             "example": {
                 "model_id": "gpt-4-turbo",
                 "name": "GPT-4 Turbo",
@@ -150,3 +154,4 @@ class ModelConfig(BaseModel):
                 }
             }
         }
+    )

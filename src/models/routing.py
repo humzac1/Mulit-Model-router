@@ -2,7 +2,7 @@
 
 from typing import Dict, List, Optional, Any
 from enum import Enum
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from datetime import datetime
 
 
@@ -29,7 +29,9 @@ class RoutingReason(str, Enum):
 
 class RoutingScore(BaseModel):
     """Scoring for a model candidate."""
-    
+
+    model_config = ConfigDict(protected_namespaces=())
+
     model_id: str = Field(..., description="Model identifier")
     
     # Core scores (0.0 to 1.0)
@@ -61,7 +63,9 @@ class RoutingScore(BaseModel):
 
 class RoutingContext(BaseModel):
     """Context used for routing decisions."""
-    
+
+    model_config = ConfigDict(protected_namespaces=())
+
     # User constraints
     max_cost: Optional[float] = Field(None, description="Maximum cost constraint")
     max_latency_ms: Optional[int] = Field(None, description="Maximum latency constraint")
@@ -85,7 +89,9 @@ class RoutingContext(BaseModel):
 
 class RoutingDecision(BaseModel):
     """Final routing decision with full details."""
-    
+
+    model_config = ConfigDict(protected_namespaces=())
+
     # Decision
     selected_model: str = Field(..., description="Selected model ID")
     fallback_models: List[str] = Field(
