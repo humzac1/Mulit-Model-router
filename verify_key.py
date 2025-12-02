@@ -82,3 +82,4 @@ except Exception as e:
 print("\n" + "=" * 50)
 print("✅ Your API key is configured correctly!")
 print("   You can now run: ./test_end_to_end.sh")
+

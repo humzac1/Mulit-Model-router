@@ -257,7 +257,7 @@ async def analyze_prompt(
 
 
 @health_routes.get(
-    "/",
+    "",
     summary="Health check",
     description="Basic health check endpoint"
 )

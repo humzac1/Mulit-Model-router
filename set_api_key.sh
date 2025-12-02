@@ -32,3 +32,4 @@ echo "   Preview: ${API_KEY:0:20}..."
 echo ""
 echo "🚀 Running end-to-end test..."
 ./test_end_to_end.sh
+

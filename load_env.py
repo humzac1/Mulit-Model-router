@@ -42,3 +42,4 @@ print(f"   Key preview: {api_key[:20]}...")
 
 # Export for shell scripts
 print(f"export OPENAI_API_KEY='{api_key}'")
+

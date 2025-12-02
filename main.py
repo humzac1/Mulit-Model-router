@@ -65,30 +65,34 @@ def main(
         enable_rich=not json_logs
     )
     
-    # Create the FastAPI app
-    app = create_app()
-    
     # Configure uvicorn
-    config = {
-        "app": app,
-        "host": host,
-        "port": port,
-        "log_level": log_level.lower(),
-        "access_log": True,
-        "use_colors": not json_logs,
-    }
-    
     if reload:
-        # Development mode
-        config.update({
+        # Development mode - use import string for reload to work
+        config = {
+            "app": "src.api.server:create_app",
+            "factory": True,
+            "host": host,
+            "port": port,
+            "log_level": log_level.lower(),
+            "access_log": True,
+            "use_colors": not json_logs,
             "reload": True,
             "reload_dirs": ["src"],
             "reload_includes": ["*.py", "*.yaml", "*.yml"],
-        })
+        }
         click.echo(f"Starting development server on http://{host}:{port}")
         click.echo("Auto-reload enabled - server will restart on code changes")
     else:
-        # Production mode
+        # Production mode - use app object directly
+        app = create_app()
+        config = {
+            "app": app,
+            "host": host,
+            "port": port,
+            "log_level": log_level.lower(),
+            "access_log": True,
+            "use_colors": not json_logs,
+        }
         if workers > 1:
             config["workers"] = workers
         click.echo(f"Starting production server on http://{host}:{port}")

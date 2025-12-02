@@ -55,13 +55,46 @@ fi
 # Test 1: Start the server
 echo ""
 echo "🚀 Starting the Multi-Model Router server..."
-python3 main.py serve --host 127.0.0.1 --port 8000 &
+# Ensure DEBUG is not set to avoid reload mode issues
+DEBUG=false python3 main.py serve --host 127.0.0.1 --port 8000 > /tmp/router_test.log 2>&1 &
 SERVER_PID=$!
-sleep 5
+echo "   Waiting for server to initialize (this may take 30+ seconds for first-time embedding model download)..."
 
-# Check if server is running
-if ! curl -s http://127.0.0.1:8000/health > /dev/null; then
-    echo "❌ Server failed to start"
+# Wait for server to be ready (check every 2 seconds, up to 60 seconds)
+MAX_WAIT=60
+WAITED=0
+while [ $WAITED -lt $MAX_WAIT ]; do
+    sleep 2
+    WAITED=$((WAITED + 2))
+    
+    # Check if process died
+    if ! ps -p $SERVER_PID > /dev/null 2>&1; then
+        echo "❌ Server process died during startup"
+        echo "   Last 20 lines of log:"
+        tail -20 /tmp/router_test.log
+        exit 1
+    fi
+    
+    # Check if server is listening and responding
+    if lsof -i :8000 > /dev/null 2>&1; then
+        HEALTH_RESPONSE=$(curl -sL http://127.0.0.1:8000/health 2>&1)
+        if [ $? -eq 0 ] && echo "$HEALTH_RESPONSE" | grep -q "healthy"; then
+            echo "✅ Server started successfully after ${WAITED} seconds"
+            break
+        fi
+    fi
+    
+    # Show progress every 10 seconds
+    if [ $((WAITED % 10)) -eq 0 ]; then
+        echo "   Still initializing... (${WAITED}s elapsed)"
+    fi
+done
+
+# Final check
+if [ $WAITED -ge $MAX_WAIT ]; then
+    echo "❌ Server failed to start within ${MAX_WAIT} seconds"
+    echo "   Last 30 lines of log:"
+    tail -30 /tmp/router_test.log
     kill $SERVER_PID 2>/dev/null
     exit 1
 fi
@@ -71,7 +104,7 @@ echo "✅ Server started successfully on http://127.0.0.1:8000"
 # Test 2: Health check
 echo ""
 echo "🏥 Testing health endpoint..."
-HEALTH_RESPONSE=$(curl -s http://127.0.0.1:8000/health)
+HEALTH_RESPONSE=$(curl -sL http://127.0.0.1:8000/health)
 if [ $? -eq 0 ]; then
     echo "✅ Health check passed"
     echo "Response: $HEALTH_RESPONSE"

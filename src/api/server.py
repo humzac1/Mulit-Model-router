@@ -15,7 +15,6 @@ import structlog
 from ..models.model_config import ModelConfig
 from ..rag.knowledge_base import ModelKnowledgeBase
 from ..routing.routing_engine import RoutingEngine
-from .routes import router_routes, health_routes, analysis_routes
 
 logger = structlog.get_logger()
 
@@ -73,13 +72,19 @@ async def initialize_router() -> RoutingEngine:
         knowledge_base = ModelKnowledgeBase(persist_directory=persist_dir)
         
         # Initialize knowledge base from documents
-        if docs_path.exists():
+        # Try modelData directory first (actual location), then model_docs (legacy)
+        modelData_path = Path(__file__).parent.parent.parent / "data" / "modelData"
+        if modelData_path.exists():
+            await knowledge_base.initialize_from_documents(str(modelData_path))
+            logger.info("Knowledge base initialized from documents", path=str(modelData_path))
+        elif docs_path.exists():
             await knowledge_base.initialize_from_documents(str(docs_path))
-            logger.info("Knowledge base initialized from documents")
+            logger.info("Knowledge base initialized from documents", path=str(docs_path))
         else:
             logger.warning(
                 "Model documentation directory not found",
-                path=str(docs_path)
+                modelData_path=str(modelData_path),
+                model_docs_path=str(docs_path)
             )
         
         # Create routing engine
@@ -143,6 +148,9 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
+    
+    # Import routes here to avoid circular import
+    from .routes import router_routes, health_routes, analysis_routes
     
     # Configure structured logging
     structlog.configure(
