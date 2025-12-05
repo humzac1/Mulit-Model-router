@@ -24,4 +24,4 @@ Needs endpoints
 **12/02/2025:** Fixed python server startup, end-to-end works for ollama and open AI models, correct routing of coding and textual tasks as well, needs to integrate other models and needs an addition of a node server for an actual frontend application
 
 
-**12/02/2025:** Added Node.js server and Frontend html interface. Need to finish FastAPI and backend before any plug in. Also figure the other models and configurations.
+**12/04/2025:** Added Node.js server and Frontend html interface. Need to finish FastAPI and backend before any plug in. Also figure the other models and configurations.
