@@ -1,0 +1,23 @@
+{
+  "name": "multi-model-router-frontend",
+  "version": "1.0.0",
+  "description": "Frontend server for Multi-Model Router with chat-style UI",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "build": "echo 'No build step yet'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "helmet": "^7.1.0",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["frontend", "chat", "ai", "model-router"],
+  "author": "Humza",
+  "license": "MIT"
+}

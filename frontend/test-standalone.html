@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Model Router - Standalone Test</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Embed the CSS here for standalone testing */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary-bg: #ffffff; --secondary-bg: #f8fafc; --accent-bg: #f1f5f9;
+            --border-color: #e2e8f0; --text-primary: #1e293b; --text-secondary: #64748b;
+            --text-muted: #94a3b8; --brand-primary: #3b82f6; --brand-secondary: #6366f1;
+            --success: #10b981; --warning: #f59e0b; --error: #ef4444;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05); --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1); --border-radius: 8px; --border-radius-lg: 12px;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        body { font-family: var(--font-family); background-color: var(--primary-bg); color: var(--text-primary); line-height: 1.6; }
+        .app-container { display: flex; flex-direction: column; height: 100vh; max-width: 1200px; margin: 0 auto; background: var(--primary-bg); }
+        .app-header { border-bottom: 1px solid var(--border-color); background: var(--primary-bg); padding: 1rem 2rem; }
+        .header-content { display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
+        .logo { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-icon { font-size: 1.5rem; background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .logo h1 { font-size: 1.25rem; font-weight: 600; color: var(--text-primary); }
+        .chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; padding: 1rem 2rem; }
+        .messages-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem; }
+        .message { display: flex; gap: 1rem; animation: slideIn 0.3s ease-out; }
+        .message-user { justify-content: flex-end; }
+        .message-assistant { justify-content: flex-start; }
+        .message-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; margin-top: 0.25rem; }
+        .message-user .message-avatar { background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); color: white; }
+        .message-assistant .message-avatar { background: var(--secondary-bg); color: var(--text-secondary); border: 2px solid var(--border-color); }
+        .message-content { flex: 1; max-width: calc(100% - 4rem); }
+        .message-bubble { padding: 1rem 1.25rem; border-radius: var(--border-radius-lg); position: relative; }
+        .message-user .message-bubble { background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary)); color: white; border-bottom-right-radius: 4px; }
+        .message-assistant .message-bubble { background: var(--secondary-bg); color: var(--text-primary); border: 1px solid var(--border-color); border-bottom-left-radius: 4px; }
+        .message-text { line-height: 1.6; white-space: pre-wrap; }
+        .message-meta { margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid rgba(255, 255, 255, 0.1); display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .message-assistant .message-meta { border-top-color: var(--border-color); }
+        .model-indicator { display: flex; align-items: center; gap: 0.5rem; padding: 0.375rem 0.75rem; background: rgba(255, 255, 255, 0.1); border-radius: 20px; font-size: 0.875rem; font-weight: 500; backdrop-filter: blur(10px); }
+        .message-assistant .model-indicator { background: var(--accent-bg); color: var(--text-secondary); }
+        .model-indicator-dot { width: 8px; height: 8px; border-radius: 50%; }
+        .routing-info { display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; color: rgba(255, 255, 255, 0.8); }
+        .message-assistant .routing-info { color: var(--text-muted); }
+        .cost-info, .latency-info { display: flex; align-items: center; gap: 0.25rem; }
+        .cost-info svg, .latency-info svg { width: 14px; height: 14px; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .input-container { border-top: 1px solid var(--border-color); background: var(--primary-bg); padding: 1rem 2rem; }
+        .input-wrapper { display: flex; align-items: flex-end; gap: 0.75rem; margin-bottom: 0.75rem; }
+        .prompt-input { flex: 1; padding: 1rem 1.25rem; border: 2px solid var(--border-color); border-radius: var(--border-radius-lg); font-family: inherit; font-size: 1rem; line-height: 1.5; resize: none; outline: none; background: var(--primary-bg); color: var(--text-primary); min-height: 56px; max-height: 200px; }
+        .send-button { width: 56px; height: 56px; border: none; border-radius: var(--border-radius-lg); background: var(--brand-primary); color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; flex-shrink: 0; }
+        .send-button:hover:not(:disabled) { background: #2563eb; }
+        .send-button:disabled { background: var(--text-muted); cursor: not-allowed; opacity: 0.5; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">🧠</div>
+                    <h1>Multi-Model Router</h1>
+                </div>
+            </div>
+        </header>
+
+        <main class="chat-container">
+            <div id="messages" class="messages-container">
+                <!-- Sample messages for testing -->
+                <div class="message message-user">
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="message-text">What is the capital of France?</div>
+                        </div>
+                    </div>
+                    <div class="message-avatar">👤</div>
+                </div>
+
+                <div class="message message-assistant">
+                    <div class="message-avatar">🧠</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="message-text">The capital of France is Paris. It's located in the north-central part of the country and is not only the political capital but also the cultural and economic center of France.</div>
+                            <div class="message-meta">
+                                <div class="model-indicator">
+                                    <span class="model-indicator-dot" style="background-color: #10a37f"></span>
+                                    <span>Routed to GPT-3.5 Turbo</span>
+                                </div>
+                                <div class="routing-info">
+                                    <div class="cost-info">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                        $0.003
+                                    </div>
+                                    <div class="latency-info">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                                            <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                                        </svg>
+                                        450ms
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="message message-user">
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="message-text">Write a Python function to calculate fibonacci numbers</div>
+                        </div>
+                    </div>
+                    <div class="message-avatar">👤</div>
+                </div>
+
+                <div class="message message-assistant">
+                    <div class="message-avatar">🧠</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="message-text">```python
+def fibonacci(n):
+    """
+    Calculate the nth Fibonacci number using recursion.
+
+    Args:
+        n (int): The position in the Fibonacci sequence (starting from 0)
+
+    Returns:
+        int: The nth Fibonacci number
+    """
+    if n <= 1:
+        return n
+    else:
+        return fibonacci(n-1) + fibonacci(n-2)
+
+# Example usage
+print(fibonacci(10))  # Output: 55
+```</div>
+                            <div class="message-meta">
+                                <div class="model-indicator">
+                                    <span class="model-indicator-dot" style="background-color: #7c3aed"></span>
+                                    <span>Routed to CodeLlama 13B</span>
+                                </div>
+                                <div class="routing-info">
+                                    <div class="cost-info">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                        $0.000
+                                    </div>
+                                    <div class="latency-info">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                                            <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                                        </svg>
+                                        320ms
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="input-container">
+            <div class="input-wrapper">
+                <textarea
+                    id="prompt-input"
+                    class="prompt-input"
+                    placeholder="Ask me anything... (e.g., 'Write a Python function', 'Analyze this data', 'Explain quantum physics')"
+                    rows="1"
+                    maxlength="2000"
+                ></textarea>
+                <button id="send-button" class="send-button" disabled>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22,2 15,22 11,13 2,9"></polygon>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple test functionality
+        const promptInput = document.getElementById('prompt-input');
+        const sendButton = document.getElementById('send-button');
+        const messagesContainer = document.getElementById('messages');
+
+        function updateSendButton() {
+            sendButton.disabled = !promptInput.value.trim();
+        }
+
+        promptInput.addEventListener('input', updateSendButton);
+
+        sendButton.addEventListener('click', () => {
+            const prompt = promptInput.value.trim();
+            if (!prompt) return;
+
+            // Add user message
+            addMessage('user', prompt);
+            promptInput.value = '';
+            updateSendButton();
+
+            // Simulate response (replace with actual API call)
+            setTimeout(() => {
+                const models = [
+                    { name: 'GPT-4 Turbo', color: '#10a37f' },
+                    { name: 'Claude 3 Sonnet', color: '#d97706' },
+                    { name: 'CodeLlama 13B', color: '#7c3aed' }
+                ];
+                const selectedModel = models[Math.floor(Math.random() * models.length)];
+                const mockResponse = `This is a mock response from ${selectedModel.name}. The routing system would select this model based on your prompt characteristics.`;
+                addMessage('assistant', mockResponse, selectedModel);
+            }, 1000 + Math.random() * 2000);
+        });
+
+        function addMessage(type, content, metadata = {}) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+
+            if (type === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="message-text">${content}</div>
+                        </div>
+                    </div>
+                    <div class="message-avatar">👤</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">🧠</div>
+                    <div class="message-content">
+                        <div class="message-bubble">
+                            <div class="message-text">${content}</div>
+                            <div class="message-meta">
+                                <div class="model-indicator">
+                                    <span class="model-indicator-dot" style="background-color: ${metadata.color || '#6366f1'}"></span>
+                                    <span>Routed to ${metadata.name || 'Unknown Model'}</span>
+                                </div>
+                                <div class="routing-info">
+                                    <div class="cost-info">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                                        </svg>
+                                        $${(Math.random() * 0.05).toFixed(4)}
+                                    </div>
+                                    <div class="latency-info">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/>
+                                            <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"/>
+                                        </svg>
+                                        ${Math.floor(Math.random() * 1000 + 200)}ms
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Focus input on load
+        promptInput.focus();
+    </script>
+</body>
+</html>
