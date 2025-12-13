@@ -25,3 +25,5 @@ Needs endpoints
 
 
 **12/04/2025:** Added Node.js server and Frontend html interface. Need to finish FastAPI and backend before any plug in. Also figure the other models and configurations.
+
+**12/12/2025:** Added a loveable frontend that works better on another repository in account (need to merge together later). Configured and insterted Anthropic API key and model routing for Open AI and Anthropic models is working. Should look into adding gemini and grok models instead of llama models. Need to fine tune router LLM. Finish complete backend soon.
